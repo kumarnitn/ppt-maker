@@ -124,7 +124,30 @@ class ValidationService:
             flags=re.IGNORECASE | re.DOTALL,
         )
 
-        # 5. Clean prompt leakage artifacts (e.g., meta labels and default hallucinated copyright footers)
+        # 5. Fix adjacent <text> tags where the second tag lacks x/y coordinates (merge into single text with tspan)
+        def _merge_adjacent_texts(match: re.Match) -> str:
+            attrs1, content1, attrs2, content2 = match.groups()
+            return f"<text{attrs1}>{content1} <tspan{attrs2}>{content2}</tspan></text>"
+
+        sanitized = re.sub(
+            r"<text\b([^>]*)>(.*?)</text>\s*<text(?![^>]*\b(?:x|y)=)\b([^>]*)>(.*?)</text>",
+            _merge_adjacent_texts,
+            sanitized,
+            flags=re.DOTALL,
+        )
+
+        # 6. Ensure any remaining orphan <text> tags have valid coordinates (avoid default y=0 offscreen bounds)
+        def _ensure_text_coords(match: re.Match) -> str:
+            tag_str = match.group(0)
+            if not re.search(r"\bx\s*=", tag_str):
+                tag_str = tag_str[:-1] + ' x="80">'
+            if not re.search(r"\by\s*=", tag_str):
+                tag_str = tag_str[:-1] + ' y="200">'
+            return tag_str
+
+        sanitized = re.sub(r"<text\b(?![^>]*\b(?:x|y)=)[^>]*>", _ensure_text_coords, sanitized)
+
+        # 7. Clean prompt leakage artifacts (e.g., meta labels and default hallucinated copyright footers)
         leakage_patterns = [
             (r"\bCore Message:\s*", ""),
             (r"\bKey Content Points:\s*", ""),

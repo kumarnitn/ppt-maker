@@ -351,7 +351,7 @@ LAYOUT BLUEPRINTS (APPLY BASED ON SLIDE LAYOUT TYPE):
      `<rect x="{x+425}" y="{y+18}" width="120" height="22" rx="4" fill="#FEF3C7"/>`
      `<text x="{x+485}" y="{y+33}" text-anchor="middle" fill="{accent}" font-size="10" font-weight="bold">CRITICAL RISK</text>`
      `<text x="{x+25}" y="{y+35}" fill="#0F172A" font-size="16" font-weight="bold">1. High-Acuity Live Campus Adjacency</text>`
-     `<text x="{x+25}" y="{y+65}" fill="{accent}" font-size="11" font-weight="bold">Challenge: </text><text fill="#475569" font-size="12">Metres from operating theatres, ICUs &amp; wards.</text>`
+     `<text x="{x+25}" y="{y+65}" font-size="12"><tspan fill="{accent}" font-weight="bold">Challenge: </tspan><tspan fill="#475569">Metres from operating theatres, ICUs &amp; wards.</tspan></text>`
      `<text x="{x+25}" y="{y+95}" fill="#0F172A" font-size="11" font-weight="bold">Engineered Geotechnical Response:</text>`
      `<circle cx="{x+30}" cy="{y+120}" r="2.5" fill="{accent}"/><text x="{x+42}" y="{y+124}" fill="#334155" font-size="12">Upfront agreed vibration &amp; settlement alert/action/alarm trigger levels</text>`
      `<circle cx="{x+30}" cy="{y+145}" r="2.5" fill="{accent}"/><text x="{x+42}" y="{y+149}" fill="#334155" font-size="12">24/7 automated telemetry with live alerts shared with hospital facilities</text>`
