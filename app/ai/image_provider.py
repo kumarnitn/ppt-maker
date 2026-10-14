@@ -524,7 +524,7 @@ def get_image_provider(config: Any) -> BaseImageProvider:
         or os.getenv("FLUX_2_PRO_API_KEY")
         or os.getenv("BFL_API_KEY")
     )
-    if provider_name in ("flux", "flux-2-pro", "flux_2_pro", "flux-pro", "bfl") or (provider_name in ("auto", "default", "local") and flux_key):
+    if provider_name in ("flux", "flux-2-pro", "flux_2_pro", "flux-pro", "bfl") or (provider_name in ("auto", "default") and flux_key):
         if flux_key:
             return FluxImageProvider(
                 config=config,

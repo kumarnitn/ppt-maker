@@ -69,11 +69,10 @@ class ExportService:
                 "--animation-trigger", animation_trigger or "after-previous",
                 "--animation-stagger", "0.4",
             ])
+            if transition and transition != "none":
+                cmd.extend(["-t", transition])
         else:
             cmd.append("--no-animations")
-
-        if transition and transition != "none":
-            cmd.extend(["-t", transition])
 
         logger.info("Compiling PPTX presentation: %s", cmd)
         res = run_command_safe(

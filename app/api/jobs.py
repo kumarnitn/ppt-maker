@@ -308,3 +308,71 @@ def get_job_image(job_id: str, filename: str):
 
     return send_file(str(image_file), mimetype=mimetype)
 
+
+@jobs_bp.route("/api/jobs/import-pptx", methods=["POST"])
+def import_pptx():
+    """Import an existing PPTX file, extract its identity, and create a roundtrip SVG workspace."""
+    from app.services.pptx_import_service import PPTXImportAndBeautifyService
+
+    config = get_config()
+    import_service = PPTXImportAndBeautifyService(config)
+
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
+
+    file = request.files["file"]
+    if not file.filename or not file.filename.lower().endswith(".pptx"):
+        return jsonify({"error": "Uploaded file must be a .pptx presentation"}), 400
+
+    job_id = f"import_{uuid.uuid4().hex[:8]}"
+    upload_dir = config.data_dir / "uploads"
+    upload_dir.mkdir(parents=True, exist_ok=True)
+    temp_pptx = upload_dir / f"{job_id}_{file.filename}"
+    file.save(temp_pptx)
+
+    project_name = Path(file.filename).stem
+    project_slug = sanitize_project_name(project_name)
+    target_project_dir = config.projects_dir / f"{project_slug}_imported_{uuid.uuid4().hex[:6]}"
+
+    identity = import_service.extract_identity(temp_pptx)
+    success = import_service.import_pptx_to_workspace(temp_pptx, target_project_dir, roundtrip=True)
+
+    if not success:
+        return jsonify({
+            "error": "Failed to unpack PPTX to SVG workspace",
+            "identity": identity,
+        }), 500
+
+    # Count extracted slides
+    svg_files = list((target_project_dir / "authoring-svg-flat").glob("*.svg"))
+    if not svg_files:
+        svg_files = list((target_project_dir / "svg-flat").glob("*.svg"))
+    if not svg_files:
+        svg_files = list((target_project_dir / "svg").glob("*.svg"))
+
+    return jsonify({
+        "status": "success",
+        "project_dir": str(target_project_dir),
+        "slide_count": len(svg_files),
+        "identity": identity,
+        "slides": [s.name for s in sorted(svg_files)],
+    }), 200
+
+
+@jobs_bp.route("/api/jobs/beautify", methods=["POST"])
+def beautify_pptx():
+    """Upload a PPTX file and execute the 1:1 beautification pipeline with executive styling."""
+    if "file" not in request.files:
+        return jsonify({"error": "No PPTX file uploaded"}), 400
+
+    file = request.files["file"]
+    if not file.filename or not file.filename.lower().endswith(".pptx"):
+        return jsonify({"error": "File must be a .pptx presentation"}), 400
+
+    # Delegate to create_job flow with beautify parameters
+    request.form = request.form.copy()
+    request.form["purpose"] = "Executive Presentation Beautification"
+    request.form["style_direction"] = "Executive Consulting (Light / Corporate Blue / Accent Orange)"
+    return create_job()
+
+
