@@ -49,7 +49,8 @@ class SlideService:
                 image_instruction = (
                     f"Contextual image asset available at '../images/{slide.image_filename}'. "
                     f"You MUST embed it in the layout using: "
-                    f"<image href='../images/{slide.image_filename}' x='...' y='...' width='...' height='...' preserveAspectRatio='xMidYMid slice'/>"
+                    f"<image href='../images/{slide.image_filename}' x='60' y='180' width='460' height='480' preserveAspectRatio='xMidYMid slice'/>\n"
+                    f"Place your structured title, key points, and metrics on the opposite side (x: 540 to 1220)."
                 )
 
         logger.info("Generating slide %d/%d: %s", slide.index, total_slides, slide.title)

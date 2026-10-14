@@ -39,15 +39,17 @@ You can generate full presentations directly from the command line without
 opening the browser:
 
    # Generate from a document (PDF, Word DOCX, Markdown, etc.):
-   .venv/bin/python app/main.py generate \
+   .venv/bin/python app/main.py cli \
      --source path/to/document.pdf \
      --slides 6 \
-     --topic "Q4 Strategic Business Review"
+     --topic "Q4 Strategic Business Review" \
+     --animations
 
    # Generate from a prompt topic alone:
-   .venv/bin/python app/main.py generate \
+   .venv/bin/python app/main.py cli \
      --topic "Enterprise Multi-Cloud Infrastructure & Monitoring" \
-     --slides 4
+     --slides 4 \
+     --animations
 
    All generated presentations are saved to:
    projects/<project_slug>_<timestamp>/exports/
