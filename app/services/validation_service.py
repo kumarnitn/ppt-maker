@@ -119,7 +119,18 @@ class ValidationService:
             flags=re.IGNORECASE | re.DOTALL,
         )
 
-        # 5. Deterministically clamp bounds and wrap overflowing text
+        # 5. Clean prompt leakage artifacts (e.g., meta labels and default hallucinated copyright footers)
+        leakage_patterns = [
+            (r"\bCore Message:\s*", ""),
+            (r"\bKey Content Points:\s*", ""),
+            (r"\bVisual Direction:\s*", ""),
+            (r"<text[^>]*>\s*(?:Core Message|Visual Direction|Key Content Points)\s*</text>", ""),
+            (r"<text[^>]*>\s*©\s*\d{4}\s+(?:Your Company Name|Project Insights|Innovative Healthcare Solutions|Project Management Team)[^<]*</text>", ""),
+        ]
+        for pattern, replacement in leakage_patterns:
+            sanitized = re.sub(pattern, replacement, sanitized, flags=re.IGNORECASE)
+
+        # 6. Deterministically clamp bounds and wrap overflowing text
         sanitized = self.normalize_svg_viewbox_bounds(sanitized)
         return sanitized
 
