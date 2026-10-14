@@ -46,12 +46,20 @@ class SlideService:
         if slide.image_filename:
             img_file = project_path / "images" / slide.image_filename
             if img_file.is_file():
-                image_instruction = (
-                    f"Contextual image asset available at '../images/{slide.image_filename}'. "
-                    f"You MUST embed it in the layout using: "
-                    f"<image href='../images/{slide.image_filename}' x='60' y='180' width='460' height='480' preserveAspectRatio='xMidYMid slice'/>\n"
-                    f"Place your structured title, key points, and metrics on the opposite side (x: 540 to 1220)."
-                )
+                if slide.index == 1:
+                    image_instruction = (
+                        f"Contextual image asset available at '../images/{slide.image_filename}'. "
+                        f"Embed it on the right side using: "
+                        f"<image href='../images/{slide.image_filename}' x='760' y='180' width='460' height='460' rx='8' preserveAspectRatio='xMidYMid slice'/>\n"
+                        f"Keep the main title, proposal badges, and central promise box on the left side (x: 60 to 720)."
+                    )
+                else:
+                    image_instruction = (
+                        f"Contextual image asset available at '../images/{slide.image_filename}'. "
+                        f"You MUST embed it in the layout using: "
+                        f"<image href='../images/{slide.image_filename}' x='60' y='180' width='460' height='480' preserveAspectRatio='xMidYMid slice'/>\n"
+                        f"Place your structured title, key points, and metrics on the opposite side (x: 540 to 1220)."
+                    )
 
         logger.info("Generating slide %d/%d: %s", slide.index, total_slides, slide.title)
         raw_svg = self.ai_client.generate_slide_svg(

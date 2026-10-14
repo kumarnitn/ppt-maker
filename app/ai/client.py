@@ -110,6 +110,7 @@ class BaseAIClient(ABC):
         """Generate DrawingML-compatible SVG for a slide."""
         bullet_text = "\n".join(f"- {pt}" for pt in slide.bullet_points)
         img_inst = image_instruction or "None. Use vector SVG cards, shapes, and icons."
+        icons_text = ", ".join(slide.suggested_icons) if slide.suggested_icons else "tabler-outline/shield, tabler-outline/leaf, tabler-outline/clock, tabler-outline/check"
         formatted_prompt = SLIDE_SVG_USER_PROMPT.format(
             slide_index=slide.index,
             total_slides=total_slides,
@@ -121,6 +122,7 @@ class BaseAIClient(ABC):
             bullet_points=bullet_text,
             visual_suggestion=slide.visual_suggestion or "Split card layout",
             image_instruction=img_inst,
+            suggested_icons=icons_text,
             view_box=spec.view_box,
             bg_color=spec.palette.background,
             surface_color=spec.palette.surface,
