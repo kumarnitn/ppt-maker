@@ -101,7 +101,12 @@ class ValidationService:
         for ent, rep in entity_replacements.items():
             sanitized = sanitized.replace(ent, rep)
 
-        # 3. Strip class="..." attributes
+        # 3. Escape bare ampersands not already part of an XML entity (e.g. "Concept & Schematic", "C&S", "M&E")
+        sanitized = re.sub(r"&(?!(?:amp|lt|gt|quot|apos|#\d+|#x[0-9a-fA-F]+);)", "&amp;", sanitized)
+        # Escape stray '<' inside text (e.g. "<2 mins", "<60%")
+        sanitized = re.sub(r"<(?=[0-9\s])", "&lt;", sanitized)
+
+        # 4. Strip class="..." attributes
         sanitized = re.sub(r'\bclass\s*=\s*["\'][^"\']*["\']', "", sanitized, flags=re.IGNORECASE)
 
         # 4. Clean whitespace within data URIs: href="data:image/... "
