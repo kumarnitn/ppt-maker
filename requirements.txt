@@ -11,3 +11,5 @@
 #   pip install -r skills/ppt-master/requirements.txt   # from anywhere / 任意位置
 #
 -r skills/ppt-master/requirements.txt
+openai>=1.0.0
+

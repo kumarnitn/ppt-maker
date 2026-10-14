@@ -55,6 +55,9 @@ MODEL_ENDPOINTS = {
     "flux-pro-1.1": "/v1/flux-pro-1.1",
     "flux-pro-1.1-ultra": "/v1/flux-pro-1.1-ultra",
     "flux-dev": "/v1/flux-dev",
+    "flux-pro": "/v1/flux-pro",
+    "flux.1-pro": "/v1/flux-pro",
+    "flux-2-pro": "/v1/flux-2-pro",
 }
 
 ASPECT_RATIO_TO_DIMENSIONS = {
@@ -85,8 +88,11 @@ def _resolve_request_options(
     normalized_model = model.strip().lower()
     endpoint = MODEL_ENDPOINTS.get(normalized_model)
     if not endpoint:
-        supported = sorted(MODEL_ENDPOINTS)
-        raise ValueError(f"Unsupported BFL model '{model}'. Supported: {supported}")
+        if normalized_model.startswith("flux-") or normalized_model.startswith("flux_"):
+            endpoint = f"/v1/{normalized_model.replace('_', '-')}"
+        else:
+            supported = sorted(MODEL_ENDPOINTS)
+            raise ValueError(f"Unsupported BFL model '{model}'. Supported: {supported}")
     normalized_size = normalize_image_size(image_size)
     if normalized_size != "1K":
         raise ValueError(
@@ -182,11 +188,17 @@ def generate(prompt: str,
     """Generate an image with retries using the BFL backend."""
     resolved_model = model or os.environ.get("BFL_MODEL") or DEFAULT_MODEL
     _resolve_request_options(aspect_ratio, image_size, resolved_model)
-    api_key = require_api_key(
-        "BFL_API_KEY",
-        message="No API key found. Set BFL_API_KEY in the current environment or a .env file.",
+    api_key = (
+        os.environ.get("FLUX_API_KEY")
+        or os.environ.get("FLUX_2_PRO_API_KEY")
+        or os.environ.get("BFL_API_KEY")
     )
-    base_url = os.environ.get("BFL_BASE_URL") or DEFAULT_BASE_URL
+    if not api_key:
+        api_key = require_api_key(
+            "BFL_API_KEY",
+            message="No API key found. Set FLUX_API_KEY, FLUX_2_PRO_API_KEY, or BFL_API_KEY in the current environment or a .env file.",
+        )
+    base_url = os.environ.get("FLUX_BASE_URL") or os.environ.get("BFL_BASE_URL") or DEFAULT_BASE_URL
 
     last_error = None
     for attempt in range(max_retries + 1):

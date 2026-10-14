@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PPT Master - Autonomous Presentation Generator</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <div class="brand-icon">PPT</div>
+        <div>
+          <h1>PPT Master <span class="brand-tag">Standalone</span></h1>
+        </div>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-btn active" data-tab="create">New Deck</button>
+        <button class="nav-btn" data-tab="active-job" id="nav-active-job" style="display:none;">Active Job</button>
+        <button class="nav-btn" data-tab="history">History</button>
+        <button class="nav-btn" data-tab="settings">System</button>
+      </nav>
+    </header>
+
+    <!-- Create View -->
+    <section id="view-create" class="view-section active">
+      <div class="glass-card">
+        <div class="section-header">
+          <h2>Create New Presentation</h2>
+          <p>Convert your documents, reports, or research topics into native DrawingML PowerPoint decks.</p>
+        </div>
+
+        <form id="create-form">
+          <div class="form-grid">
+            <!-- Source File Dropzone -->
+            <div class="form-group full-width">
+              <label>Source Document (Optional if entering topic below)</label>
+              <div class="dropzone" id="dropzone">
+                <input type="file" id="file-input" style="display: none;" accept=".pdf,.docx,.doc,.pptx,.xlsx,.xlsm,.csv,.txt,.md,.html">
+                <div class="dropzone-icon">📄</div>
+                <p>Drag and drop your file here, or <span class="highlight">browse</span></p>
+                <p style="font-size: 11px; margin-top: 4px;">Supported: PDF, Word (DOCX), PPTX, Excel, Markdown, Plain Text</p>
+                <div id="file-badge" class="selected-file-badge" style="display: none;"></div>
+              </div>
+            </div>
+
+            <!-- Topic / Direct Text -->
+            <div class="form-group full-width">
+              <label for="topic">Topic Description or Source Text (Alternative or Supplement)</label>
+              <textarea id="topic" name="topic" rows="3" placeholder="Enter key presentation goals, background facts, or paste notes..."></textarea>
+            </div>
+
+            <!-- Project Name -->
+            <div class="form-group">
+              <label for="project_name">Project Title / Slug</label>
+              <input type="text" id="project_name" name="project_name" placeholder="e.g. Q4 Strategic Review">
+            </div>
+
+            <!-- Purpose -->
+            <div class="form-group">
+              <label for="purpose">Presentation Purpose</label>
+              <select id="purpose" name="purpose">
+                <option value="executive_presentation">Executive / Board Presentation</option>
+                <option value="product_pitch">Product / Investor Pitch</option>
+                <option value="technical_deep_dive">Technical Architecture Deep Dive</option>
+                <option value="quarterly_review">Quarterly Business Review (QBR)</option>
+                <option value="educational_workshop">Educational / Training Workshop</option>
+              </select>
+            </div>
+
+            <!-- Target Audience -->
+            <div class="form-group">
+              <label for="audience">Target Audience</label>
+              <input type="text" id="audience" name="audience" value="Senior Leadership & Stakeholders">
+            </div>
+
+            <!-- Slide Count -->
+            <div class="form-group">
+              <label for="slide_count">Slide Count</label>
+              <select id="slide_count" name="slide_count">
+                <option value="">Dynamic / Auto-Determine</option>
+                <option value="4">4 Slides (Quick Brief)</option>
+                <option value="6">6 Slides (Standard Executive)</option>
+                <option value="8">8 Slides (Comprehensive)</option>
+                <option value="10">10 Slides (Deep Dive)</option>
+              </select>
+            </div>
+
+            <!-- Aspect Ratio -->
+            <div class="form-group">
+              <label for="aspect_ratio">Canvas Aspect Ratio</label>
+              <select id="aspect_ratio" name="aspect_ratio">
+                <option value="16:9" selected>16:9 Widescreen (1280 × 720)</option>
+                <option value="4:3">4:3 Standard (1024 × 768)</option>
+              </select>
+            </div>
+
+            <!-- Style Direction -->
+            <div class="form-group">
+              <label for="style_direction">Style Direction</label>
+              <select id="style_direction" name="style_direction">
+                <option value="executive_consulting" selected>Executive Consulting &amp; Proposal (Clean White / Corporate Blue / Accent Banners)</option>
+                <option value="modern_clean">Modern Slate Clean (Dark Slate / Electric Blue)</option>
+                <option value="executive_navy">Executive Navy (Deep Navy / Sky Blue)</option>
+                <option value="minimal_light">Minimal Light (Clean White / Charcoal)</option>
+                <option value="vibrant_indigo">Vibrant Tech (Dark / Indigo &amp; Purple)</option>
+              </select>
+            </div>
+
+            <!-- Options -->
+            <div class="form-group">
+              <label>Plan Review Gate</label>
+              <div class="toggle-group">
+                <label class="switch">
+                  <input type="checkbox" id="auto_approve" checked>
+                  <span class="slider"></span>
+                </label>
+                <span id="auto_approve_label" style="font-size: 13px;">Auto-Proceed (No Review Pause)</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Speaker Notes</label>
+              <div class="toggle-group">
+                <label class="switch">
+                  <input type="checkbox" id="enable_notes" checked>
+                  <span class="slider"></span>
+                </label>
+                <span style="font-size: 13px;">Generate AI Speaker Notes</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Dynamic PowerPoint Motion</label>
+              <div class="toggle-group">
+                <label class="switch">
+                  <input type="checkbox" id="enable_animations" checked>
+                  <span class="slider"></span>
+                </label>
+                <span style="font-size: 13px;">Dynamic Element Builds (Fade, Fly, Wipe)</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="transition">Slide Transition</label>
+              <select id="transition" name="transition" style="background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; width: 100%; font-size: 13px;">
+                <option value="push" selected>Push (Dynamic Slide-in)</option>
+                <option value="fade">Smooth Fade</option>
+                <option value="wipe">Wipe</option>
+                <option value="reveal">Reveal</option>
+                <option value="none">Static (None)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>AI Visual Asset Generation</label>
+              <select name="image_provider" id="image_provider" style="background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; width: 100%; font-size: 13px;">
+                <option value="auto">Auto (Flux 2 Pro if key present, else Nano Banana / Local)</option>
+                <option value="flux">⚡ Flux 2 Pro (Black Forest Labs)</option>
+                <option value="nano_banana">🍌 Nano Banana (gemini-nano-banana-2.1)</option>
+                <option value="local">📁 Local / Vector Cards Only</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="flux-key-group" style="display: none;">
+              <label>Flux API Key (optional if configured in .env)</label>
+              <input type="password" id="flux_api_key" name="flux_api_key" placeholder="Enter BFL / Flux API Key..." style="background: var(--bg-surface); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px 12px; width: 100%; font-size: 13px;">
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+            <button type="submit" class="btn-primary" id="btn-submit">
+              <span>🚀 Generate Presentation</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Active Job View -->
+    <section id="view-active-job" class="view-section">
+      <div class="glass-card">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+          <div>
+            <h2 id="job-title" style="font-size: 22px;">Generating Presentation...</h2>
+            <p id="job-meta" style="color: var(--text-muted); font-size: 13px; margin-top: 4px;"></p>
+          </div>
+          <div>
+            <span id="job-status-badge" class="status-badge RUNNING">RUNNING</span>
+          </div>
+        </div>
+
+        <!-- Progress Tracker -->
+        <div class="progress-container">
+          <div class="progress-header">
+            <span id="job-phase-text">Phase 0: Intake and source extraction</span>
+            <span id="job-progress-num">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div class="progress-bar-fill" id="job-progress-bar"></div>
+          </div>
+        </div>
+
+        <!-- Action Bar (for completed / awaiting approval / failed states) -->
+        <div id="job-actions" style="margin-top: 20px; display: none;">
+          <!-- Download PPTX button -->
+          <a id="btn-download-pptx" href="#" class="btn-primary" style="display: none; text-decoration: none;">
+            <span>📥 Download PowerPoint (.pptx)</span>
+          </a>
+          <!-- Plan Review button -->
+          <button id="btn-review-plan" class="btn-primary" style="display: none;">
+            <span>📋 Review & Approve Slide Plan</span>
+          </button>
+          <!-- Resume Job button -->
+          <button id="btn-resume-job" class="btn-secondary" style="display: none;">
+            <span>🔄 Resume From Checkpoint</span>
+          </button>
+        </div>
+
+        <!-- Live Slide Thumbnails -->
+        <div style="margin-top: 28px;">
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Generated Slides (<span id="slide-count-badge">0</span>)</h3>
+          <div id="slides-grid" class="slides-grid">
+            <p style="color: var(--text-sub); font-size: 13px;">Slides will appear here as they are authored and validated...</p>
+          </div>
+        </div>
+
+        <!-- Execution Logs -->
+        <div style="margin-top: 28px;">
+          <h3 style="font-size: 16px; margin-bottom: 8px;">Execution Activity Log</h3>
+          <div class="log-box" id="job-logs">
+            <div class="log-entry">Waiting for activity...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- History View -->
+    <section id="view-history" class="view-section">
+      <div class="glass-card">
+        <div class="section-header">
+          <h2>Presentation History</h2>
+          <p>Past generation jobs, outputs, and recovery states.</p>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="jobs-table">
+            <thead>
+              <tr>
+                <th>Project</th>
+                <th>Status</th>
+                <th>Slides</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr>
+                <td colspan="5" style="text-align: center; color: var(--text-sub);">Loading history...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- System Settings View -->
+    <section id="view-settings" class="view-section">
+      <div class="glass-card">
+        <div class="section-header">
+          <h2>System Configuration</h2>
+          <p>AI credentials and pipeline status.</p>
+        </div>
+        <div id="settings-content" style="font-size: 14px; line-height: 1.8;">
+          <p>Loading configuration...</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Plan Review Modal -->
+  <div class="modal-overlay" id="plan-modal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h2 style="font-size: 20px;">Review Presentation Plan</h2>
+        <button id="modal-close-btn" style="background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer;">&times;</button>
+      </div>
+      <p style="color: var(--text-muted); font-size: 13px; margin-bottom: 16px;">
+        Review and edit the slide outline before full SVG generation and native PowerPoint compilation begins.
+      </p>
+      <div id="plan-slides-list" style="display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px;"></div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-secondary" id="modal-cancel-btn">Cancel</button>
+        <button class="btn-primary" id="modal-approve-btn">Approve & Start Generating</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Slide Preview Modal -->
+  <div class="modal-overlay" id="slide-preview-modal">
+    <div class="modal-content" style="max-width: 1000px; padding: 16px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+        <h3 id="preview-modal-title" style="font-size: 16px;">Slide Preview</h3>
+        <button id="preview-close-btn" style="background:none; border:none; color:var(--text-muted); font-size:24px; cursor:pointer;">&times;</button>
+      </div>
+      <div id="preview-modal-body" style="width: 100%; aspect-ratio: 16/9; background:#000; border-radius:8px; overflow:hidden;"></div>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

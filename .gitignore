@@ -166,6 +166,8 @@ yarn.lock
 *.db
 *.sqlite
 *.sqlite3
+data/
+
 
 # Cache and locks
 .cache/

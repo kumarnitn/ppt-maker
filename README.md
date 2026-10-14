@@ -159,9 +159,48 @@ Knowing how to use Python and AI agents will matter more and more, and this proj
 
 </details>
 
+## 🚀 Standalone Application & API Mode
+
+PPT Master can be run as a **fully standalone application** with its own local web interface, REST API, persistent workflow engine, and command-line interface. **No external AI coding agents (Antigravity, Cursor Agent, Claude Code) are needed at runtime.**
+
+### 1. Configure AI Provider (`.env`)
+
+Copy `.env.example` to `.env` and set your credentials. Azure OpenAI is the primary target:
+
+```dotenv
+AI_PROVIDER=azure_openai
+AZURE_OPENAI_ENDPOINT=https://your-resource-name.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-azure-api-key-here
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+AZURE_OPENAI_DEPLOYMENT=gpt-4o
+```
+
+*(You can also use standard OpenAI: `AI_PROVIDER=openai`, `OPENAI_API_KEY=sk-...`, or `AI_PROVIDER=mock` for offline testing).*
+
+### 2. Start the Local Web Application
+
+```bash
+python3 -m app.main server --port 5000
+```
+Open **`http://127.0.0.1:5000`** in your browser. You can:
+- Upload documents (PDF, DOCX, Markdown, PPTX, TXT) or enter a topic.
+- Review and edit the AI-generated slide plan before generation.
+- Track real-time slide generation progress and quality gates.
+- Preview generated slides directly in the browser.
+- Download native, editable PowerPoint `.pptx` decks.
+
+### 3. Headless CLI Generation
+
+Generate presentations directly from the terminal without opening a browser:
+
+```bash
+python3 -m app.main cli --source document.pdf --name "Executive_Summary" --slides 6
+```
+
 ---
 
 ## Quick Start
+
 
 ### 1. Prerequisites
 

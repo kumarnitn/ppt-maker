@@ -70,6 +70,7 @@ IMAGE_ENV_PREFIXES = (
     "MINIMAX_",
     "STABILITY_",
     "BFL_",
+    "FLUX_",
     "IDEOGRAM_",
     "QWEN_",
     "DASHSCOPE_",
@@ -192,8 +193,8 @@ BACKEND_REGISTRY = {
         "label": "Black Forest Labs FLUX",
         "default_model": "flux-pro-1.1-ultra",
         "default_image_size": "1K",
-        "key_hint": "BFL_API_KEY",
-        "aliases": ["flux", "black-forest-labs", "black_forest_labs"],
+        "key_hint": "FLUX_API_KEY / BFL_API_KEY",
+        "aliases": ["flux", "flux-2-pro", "flux_2_pro", "flux-pro", "black-forest-labs", "black_forest_labs"],
     },
     "ideogram": {
         "module": "backend_ideogram",

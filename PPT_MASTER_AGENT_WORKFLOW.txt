@@ -1,0 +1,237 @@
+================================================================================
+PPT MASTER & ANTIGRAVITY AGENT WORKFLOW SPECIFICATION
+================================================================================
+Document Title : End-to-End Workflow: Document to Native PowerPoint Presentation
+Author         : Antigravity AI Assistant & PPT Master Engine
+Target Audience: Developers, Designers, and AI Agents
+Date           : 2026-10-12
+================================================================================
+
+1. EXECUTIVE SUMMARY
+--------------------------------------------------------------------------------
+This document details the exact collaborative workflow between an AI agent 
+(such as Antigravity) and the PPT Master engine to transform raw unstructured 
+documents (PDFs, Word documents, Markdown files, or briefs) into executive-ready, 
+100% native DrawingML PowerPoint (.pptx) presentations.
+
+Unlike legacy presentation generators that produce flat slide screenshots, 
+static images, or rudimentary bullet points, PPT Master orchestrates a strict 
+multi-phase design pipeline where every shape, card, text box, icon, and chart 
+remains directly editable in Microsoft PowerPoint, Apple Keynote, and Google Slides.
+
+
+2. CORE ARCHITECTURE: ANTIGRAVITY VS. PPT MASTER
+--------------------------------------------------------------------------------
+The generation process relies on two distinct layers working together:
+
+A. ANTIGRAVITY (The Orchestrating Agent)
+   - Acts as the cognitive engine and pair programmer.
+   - Reads project rules (AGENTS.md, skills/ppt-master/SKILL.md).
+   - Executes shell commands (run_command).
+   - Generates images via multimodal models (Nano Banana / generate_image).
+   - Solicits human feedback at defined decision gates (ask_question).
+   - Authors SVG layouts and speaker notes.
+
+B. PPT MASTER (The Specialized Skill & Compiler Engine)
+   - Resides in skills/ppt-master/.
+   - Enforces design constraints, typographic scale, and canvas geometry.
+   - Supplies curated icon libraries (Tabler, Phosphor, etc.).
+   - Provides automated validation gates (svg_quality_checker.py).
+   - Compiles authored SVG files into native DrawingML OpenXML structures 
+     (svg_to_pptx.py).
+
+
+3. THE 6-PHASE EXECUTION LIFECYCLE
+--------------------------------------------------------------------------------
+
+PHASE 0: INTAKE & SOURCE EXTRACTION
+--------------------------------------------------------------------------------
+1. Source Reading:
+   - The user provides a source document (e.g., a technical proposal PDF).
+   - Antigravity parses the source document for structured headings, tables, 
+     data points, and strategic priorities.
+   - Command:
+     python3 skills/ppt-master/scripts/source_to_md.py <source_path>
+   - Converted markdown is placed in:
+     projects/<project_name>/sources/<source_name>.md
+
+2. Workspace Initialization:
+   - Antigravity initializes the project structure:
+     python3 skills/ppt-master/scripts/project_manager.py init <project_name>
+   - Creates required directory tree:
+     ├── sources/       (Ingested source material)
+     ├── svg_output/    (Authored slide SVGs)
+     ├── svg_final/     (Inlined & self-contained SVGs)
+     ├── notes/         (Per-slide speaker notes)
+     ├── images/        (Placed images and manifests)
+     ├── icons/         (Synced vector icon assets)
+     ├── validation/    (Quality reports and test logs)
+     └── exports/       (Final compiled .pptx decks)
+
+
+PHASE 1: STRATEGIST PHASE & INTERACTIVE ALIGNMENT
+--------------------------------------------------------------------------------
+1. Audience & Communication Analysis:
+   - Antigravity adopts the "Strategist" role.
+   - Analyzes target audience, presentation context, reading mode 
+     (presentation vs. leave-behind report), and slide budget (e.g., 10-15 slides).
+
+2. Stage 1 Interactive Gate (ask_question):
+   - Antigravity pauses and presents an interactive modal to the user.
+   - User confirms:
+     * Slide count and pacing.
+     * Canvas format (e.g., PPT 16:9 widescreen, 1280x720 px).
+     * Design route (Free Design vs. Layout Template).
+
+
+PHASE 2: DESIGN SPECIFICATION & ASSET PREPARATION
+--------------------------------------------------------------------------------
+1. Authoring the Contracts:
+   - Antigravity authors two binding markdown contracts:
+     a) design_spec.md:
+        - Project metadata (audience, objective, core message).
+        - Typography hierarchy (Title 36px, Header 28px, Body 18px, Label 12px).
+        - Semantic color palette (Background, Primary, Accent, Secondary Accent).
+        - Section IX Content Outline (slide-by-slide titles, audience move, 
+          core message, and visual layout).
+     b) spec_lock.md:
+        - Machine-enforced anchors used by automated validators.
+        - Declares canvas viewBox, exact hex values, icon library, and image paths.
+
+2. Contract Validation:
+   - Command:
+     python3 skills/ppt-master/scripts/project_manager.py validate projects/<project_name>
+   - Must output: [OK] Project structure is complete.
+
+3. Stage 2 Aesthetic Alignment (ask_question):
+   - Antigravity presents curated design directions (e.g., Executive Healthcare, 
+     Swiss-Minimal, High-Contrast Tech).
+   - User selects the preferred color palette and visual tone.
+
+4. Icon Asset Synchronization:
+   - Antigravity selects domain-specific icons matching slide topics:
+     python3 skills/ppt-master/scripts/icon_sync.py projects/<project_name> <icon_names...>
+   - SVGs are copied into projects/<project_name>/icons/.
+
+5. Image Acquisition (Nano Banana or Document Extraction):
+   - For slides requiring visuals (e.g., Cover, Case Studies):
+     Option A (AI Generation): Antigravity synthesizes a detailed contextual 
+     prompt and calls Nano Banana (generate_image). Output saved to images/.
+     Option B (Document Extraction): Figures, maps, or charts are extracted 
+     directly from the source PDF.
+   - Image metadata is analyzed and indexed:
+     python3 skills/ppt-master/scripts/analyze_images.py projects/<project_name>/images
+
+
+PHASE 3: VISUAL CONSTRUCTION (EXECUTOR PHASE)
+--------------------------------------------------------------------------------
+1. Slide Authoring in SVG:
+   - Antigravity adopts the "Executor" role.
+   - Generates slides sequentially into svg_output/ (01_cover.svg, 02_summary.svg...).
+   - Each slide adheres to strict DrawingML-compatible SVG rules:
+     * Root element: <svg viewBox="0 0 1280 720" data-pptx-page-role="...">
+     * Non-overlapping top-level groups with explicit bounding coordinates:
+       <g id="header" data-pptx-role="header" data-pptx-bounds="60 40 1160 92">
+       <g id="content" data-pptx-bounds="60 155 1160 470">
+       <g id="footer" data-pptx-role="footer" data-pptx-bounds="60 660 1160 30">
+     * Multi-line text formatted using <tspan x="..." dy="..."> to prevent 
+       horizontal overflow.
+     * Icons referenced via <use data-icon="library/name" .../>.
+     * Images referenced via <image href="..." clip-path="..." .../>.
+
+2. Early Quality Gate (After Slide 5):
+   - Antigravity runs an early validator to check for typography or bounds drift:
+     python3 skills/ppt-master/scripts/svg_quality_checker.py projects/<project_name> \
+       --canonical-authoring --stage early --json
+
+3. Remaining Slides Authoring (Slides 6 to N):
+   - Antigravity finishes remaining slides per the outline in design_spec.md §IX.
+
+4. Final Quality Check Gate:
+   - Command:
+     python3 skills/ppt-master/scripts/svg_quality_checker.py projects/<project_name> \
+       --canonical-authoring --stage final --json
+   - Hard Rule: Must pass with 0 blocking errors.
+   - Generates validation/svg_quality_report.json.
+
+
+PHASE 4: LOGIC CONSTRUCTION (SPEAKER NOTES)
+--------------------------------------------------------------------------------
+1. Authoring Executive Notes:
+   - Antigravity authors markdown speaker notes for each slide in notes/ 
+     (01_cover.md, 02_summary.md...).
+   - Notes contain: Executive talking points, timing guidance, transition hooks, 
+     and deep supporting facts not crammed onto the visual slide.
+
+2. Notes Validation & Splitting:
+   - Command:
+     python3 skills/ppt-master/scripts/total_md_split.py projects/<project_name>
+   - Verifies 1-to-1 correspondence between SVG slides and notes files.
+
+
+PHASE 5: POST-PROCESSING & COMPILATION
+--------------------------------------------------------------------------------
+1. Finalize SVG Assets:
+   - Inlines icon definitions, embeds images, and flattens styles:
+     python3 skills/ppt-master/scripts/finalize_svg.py projects/<project_name>
+   - Output stored in svg_final/.
+
+2. Native DrawingML PPTX Conversion:
+   - Converts SVG DOM into Microsoft PowerPoint DrawingML OpenXML objects:
+     python3 skills/ppt-master/scripts/svg_to_pptx.py projects/<project_name>
+   - Compiler Features:
+     * Shapes become real PowerPoint vector rectangles, cards, and lines.
+     * Text becomes natively editable text boxes with preserved font size/colors.
+     * Icons become vector shapes or clean embedded SVGs.
+     * Images become DrawingML picture shapes (<p:pic>) with native crops.
+     * Notes are embedded into PowerPoint's native presenter notes pane.
+   - Output file written to:
+     projects/<project_name>/exports/<project_name>_<timestamp>.pptx
+
+
+4. HOW ANTIGRAVITY AND PPT MASTER COMMUNICATE
+--------------------------------------------------------------------------------
+1. Skill Protocol:
+   Antigravity discovers PPT Master through AGENTS.md and skills/ppt-master/SKILL.md.
+   The skill dictates the role transitions, coding conventions, and shell commands.
+
+2. File-Based State Machine:
+   Antigravity and PPT Master communicate progress through persistent files:
+   - Sources -> design_spec.md -> spec_lock.md -> svg_output/ -> notes/ -> exports/
+   If a session is interrupted or compacted, the agent inspects these files 
+   to resume execution without duplicating work.
+
+3. Shell Command Invocations:
+   Antigravity runs Python tools directly using run_command:
+   - Captures stdout for success metrics.
+   - Separates stderr for debugging.
+   - Respects non-zero exit codes as blocking signals to halt and self-correct.
+
+4. Quality Gate Feedback Loops:
+   When svg_quality_checker.py outputs errors (e.g., text overflow, container 
+   bounds overlap, missing spec declarations), Antigravity parses the line 
+   numbers, edits the offending SVG file, and re-runs the check until 0 errors remain.
+
+
+5. SUMMARY TABLE OF WORKFLOW PHASES & TOOLS
+--------------------------------------------------------------------------------
+Phase        Action                     Tool / Command
+--------------------------------------------------------------------------------
+Phase 0      Document Conversion        source_to_md.py
+             Project Init               project_manager.py init
+Phase 1      Stage 1 Human Alignment    ask_question (Antigravity tool)
+Phase 2      Contract Authoring         design_spec.md, spec_lock.md
+             Contract Verification      project_manager.py validate
+             Stage 2 Human Alignment    ask_question (Antigravity tool)
+             Icon Sync                  icon_sync.py
+             Image Generation           generate_image (Nano Banana)
+             Image Analysis             analyze_images.py
+Phase 3      Visual SVG Coding          replace_file_content (Antigravity tool)
+             Early Quality Gate         svg_quality_checker.py --stage early
+             Final Quality Gate         svg_quality_checker.py --stage final --json
+Phase 4      Speaker Notes Coding       notes/*.md authoring
+             Notes Sync & Split         total_md_split.py
+Phase 5      SVG Asset Finalization     finalize_svg.py
+             Native PPTX Compilation    svg_to_pptx.py
+================================================================================
+EOF
