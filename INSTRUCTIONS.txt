@@ -1,0 +1,100 @@
+================================================================================
+                    PPT MASTER STANDALONE — LAUNCH & TEST GUIDE
+================================================================================
+
+1. QUICK START (WEB STUDIO)
+--------------------------------------------------------------------------------
+The application is currently running at:
+   URL: http://localhost:5000 (or http://127.0.0.1:5000)
+
+To start or restart the server manually:
+
+   Step 1: Open Terminal and navigate to the project directory:
+      cd /Users/nitinshukla/ppt-master-original_0
+
+   Step 2: Start the server using the virtual environment:
+      .venv/bin/python app/main.py server --port 5000
+
+   Step 3: Open your web browser and navigate to:
+      http://localhost:5000
+
+
+2. RUNNING THE AUTOMATED TEST SUITE
+--------------------------------------------------------------------------------
+All 59 unit, integration, and end-to-end tests can be executed with:
+
+   # Run all 59 tests:
+   .venv/bin/python -m unittest discover -s tests
+
+   # Run a specific test suite:
+   .venv/bin/python -m unittest tests/test_end_to_end.py
+   .venv/bin/python -m unittest tests/test_scenarios_and_cases.py
+   .venv/bin/python -m unittest tests/test_validation_service.py
+   .venv/bin/python -m unittest tests/test_image_provider.py
+
+
+3. COMMAND LINE (CLI) PRESENTATION GENERATION
+--------------------------------------------------------------------------------
+You can generate full presentations directly from the command line without 
+opening the browser:
+
+   # Generate from a document (PDF, Word DOCX, Markdown, etc.):
+   .venv/bin/python app/main.py generate \
+     --source path/to/document.pdf \
+     --slides 6 \
+     --topic "Q4 Strategic Business Review"
+
+   # Generate from a prompt topic alone:
+   .venv/bin/python app/main.py generate \
+     --topic "Enterprise Multi-Cloud Infrastructure & Monitoring" \
+     --slides 4
+
+   All generated presentations are saved to:
+   projects/<project_slug>_<timestamp>/exports/
+
+
+4. IMPORT & BEAUTIFY EXISTING POWERPOINT (.PPTX) DECKS
+--------------------------------------------------------------------------------
+To deconstruct an existing presentation and restyle it into the dynamic
+Executive Consulting layout:
+
+   Via Web Browser:
+      1. Go to http://localhost:5000
+      2. Drag and drop any existing .pptx file into the dropzone.
+      3. Click "Generate Presentation".
+      The engine will extract all slide content, images, and re-author 
+      it into the clean executive blue/orange layout with dynamic transitions.
+
+   Via API:
+      curl -X POST -F "file=@path/to/deck.pptx" http://127.0.0.1:5000/api/jobs/import-pptx
+      curl -X POST -F "file=@path/to/deck.pptx" http://127.0.0.1:5000/api/jobs/beautify
+
+
+5. CONFIGURATION & ENVIRONMENT VARIABLES (.env)
+--------------------------------------------------------------------------------
+API credentials are read securely from the local .env file (never committed to git):
+
+   AZURE_OPENAI_API_KEY      - Azure OpenAI API Key for GPT-4o-mini / GPT-4o
+   AZURE_OPENAI_ENDPOINT     - Azure OpenAI endpoint URL
+   AZURE_OPENAI_DEPLOYMENT   - Model deployment name (e.g. gpt-4o-mini)
+   AZURE_OPENAI_API_VERSION  - API version (e.g. 2023-03-15-preview)
+   FLUX_API_KEY              - Flux 2 Pro API key for high-resolution photo generation
+   FLUX_ENDPOINT             - Flux Azure MaaS or BFL API URL
+
+
+6. TROUBLESHOOTING & COMMON COMMANDS
+--------------------------------------------------------------------------------
+   - Check if server is running:
+      curl http://127.0.0.1:5000/api/health
+
+   - If port 5000 is occupied by another process:
+      .venv/bin/python app/main.py server --port 5050
+      (Then open http://localhost:5050 in your browser)
+
+   - View recent job exports:
+      ls -lh projects/*/exports/*.pptx
+
+   - GitHub Repository:
+      https://github.com/kumarnitn/ppt-maker.git
+
+================================================================================
